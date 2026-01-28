@@ -1,6 +1,6 @@
 module.exports = [
   {
-    ignores: ["node_modules/**", ".nuxt/**"]
+    ignores: ["node_modules/**", ".nuxt/**", ".output/**"]
   },
   {
     files: ["**/*.{ts,vue,js}"],
