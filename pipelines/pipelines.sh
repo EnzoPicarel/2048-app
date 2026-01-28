@@ -21,4 +21,8 @@ echo "=== Étape 4: Construction du \"package\" à déployer ==="
 pnpm build
 
 echo ""
+echo "=== Étape 5: Exécution des tests ==="
+pnpm test
+
+echo ""
 echo "=== Pipeline terminé avec succès ==="
