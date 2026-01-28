@@ -17,4 +17,8 @@ echo "=== Étape 3: Analyse statique (ESLint) ==="
 pnpm lint
 
 echo ""
+echo "=== Étape 4: Construction du \"package\" à déployer ==="
+pnpm build
+
+echo ""
 echo "=== Pipeline terminé avec succès ==="
