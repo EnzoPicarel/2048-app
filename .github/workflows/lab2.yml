@@ -13,21 +13,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup pnpm (official setup action)
+        uses: pnpm/action-setup@v2
+        with:
+          version: latest
+
       - name: Setup Node.js (with pnpm cache)
         uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: "pnpm"
 
-      - name: Enable corepack and prepare pnpm
-        run: |
-          corepack enable
-          corepack prepare pnpm@latest --activate
-
       - name: Ensure pnpm is available
-        run: |
-          npm install -g pnpm@latest
-          pnpm --version
+        run: pnpm --version
 
       - name: Ensure reports directory exists
         run: mkdir -p reports
