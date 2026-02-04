@@ -3,7 +3,7 @@ name: Run Lab 2 script
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: [lab3]
 
 jobs:
   run-lab2:
