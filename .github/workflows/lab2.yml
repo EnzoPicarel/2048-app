@@ -27,21 +27,28 @@ jobs:
       - name: Ensure pnpm is available
         run: pnpm --version
 
-      - name: Ensure reports directory exists
-        run: mkdir -p reports
+      - name: Install dependencies
+        run: pnpm install
 
-      - name: Make lab2 script executable
-        run: chmod +x deliverables/lab02/lab2.sh
+      - name: Type check
+        run: pnpm nuxt typecheck
 
-      - name: Run lab2 script
-        run: ./deliverables/lab02/lab2.sh
+      - name: Lint
+        run: pnpm eslint .
 
-      - name: Upload reports (always)
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: reports
-          path: reports
+      - name: Build
+        run: pnpm nuxt build
+
+      - name: Test
+        run: pnpm vitest run
+
+      - name: Verify package works (preview)
+        run: |
+          pnpm nuxt preview --host 127.0.0.1 --port 4173 &
+          PREVIEW_PID=$!
+          sleep 2
+          curl -f http://127.0.0.1:4173 || (kill $PREVIEW_PID && exit 1)
+          kill $PREVIEW_PID
 
       - name: Upload build output (on success)
         if: success()
