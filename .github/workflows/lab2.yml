@@ -24,6 +24,14 @@ jobs:
           corepack enable
           corepack prepare pnpm@latest --activate
 
+      - name: Ensure pnpm is available
+        run: |
+          npm install -g pnpm@latest
+          pnpm --version
+
+      - name: Ensure reports directory exists
+        run: mkdir -p reports
+
       - name: Make lab2 script executable
         run: chmod +x deliverables/lab02/lab2.sh
 
