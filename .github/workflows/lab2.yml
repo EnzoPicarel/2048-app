@@ -1,0 +1,45 @@
+name: Run Lab 2 script
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  run-lab2:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js (with pnpm cache)
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - name: Enable corepack and prepare pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@latest --activate
+
+      - name: Make lab2 script executable
+        run: chmod +x deliverables/lab02/lab2.sh
+
+      - name: Run lab2 script
+        run: ./deliverables/lab02/lab2.sh
+
+      - name: Upload reports (always)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports
+          path: reports
+
+      - name: Upload build output (on success)
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: output
+          path: output
