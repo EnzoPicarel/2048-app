@@ -49,7 +49,7 @@ export const useGameState = () => {
     if (score.value > 0) {
       saveScoreToHistory(score.value)
     }
-    
+
     grid.value = createEmptyGrid()
     score.value = 0
     isGameOver.value = false
@@ -95,7 +95,7 @@ export const useGameState = () => {
             lastScores.value = parsed.slice(0, 5)
           }
         } catch (e) {
-          // Invalid JSON, ignore
+          // Silently ignore invalid JSON data - will use empty array default
         }
       }
     }
