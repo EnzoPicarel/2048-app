@@ -6,6 +6,7 @@
   },
   "include": [
     ".nuxt/**/*",
+    "app/**/*.ts",
     "app/**/*.spec.ts",
     "app/**/*.test.ts",
     "app/**/*.vue"
