@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import { tileConfig } from './tileConfig'
+
 const { value } = defineProps<{
   value: number
 }>()
-
-import { tileConfig } from './tileConfig'
 
 const config = computed(() => {
   return tileConfig[value] || { bg: 'bg-gray-800', text: 'text-white', size: 'text-xl' }
