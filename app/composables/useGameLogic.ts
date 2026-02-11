@@ -108,6 +108,12 @@ export const useGameLogic = () => {
     }
 
     isGameOver.value = true
+    
+    // Save score to history when game ends
+    if (score.value > 0) {
+      const { saveScoreToHistory } = useGameState()
+      saveScoreToHistory(score.value)
+    }
   }
 
   return { move, checkGameOver }

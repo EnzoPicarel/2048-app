@@ -45,8 +45,9 @@ export const useGameState = () => {
   }
 
   function resetGame() {
-    // Save current score to history before resetting (if score > 0)
-    if (score.value > 0) {
+    // Save current score to history before resetting (if score > 0 and not already game over)
+    // If game is over, score was already saved in checkGameOver
+    if (score.value > 0 && !isGameOver.value && !isWon.value) {
       saveScoreToHistory(score.value)
     }
 
