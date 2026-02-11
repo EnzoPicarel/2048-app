@@ -1,7 +1,7 @@
 type Grid = [number[], number[], number[], number[]]
 
 export const useGameLogic = () => {
-  const { grid, score, bestScore, isGameOver, isWon, spawnTile, saveBestScore } = useGameState()
+  const { grid, score, bestScore, isGameOver, isWon, spawnTile, saveBestScore, saveScoreToHistory } = useGameState()
 
   function slide(row: number[]): { newRow: number[]; points: number } {
     const arr = row.filter(val => val !== 0)
@@ -111,7 +111,6 @@ export const useGameLogic = () => {
     
     // Save score to history when game ends
     if (score.value > 0) {
-      const { saveScoreToHistory } = useGameState()
       saveScoreToHistory(score.value)
     }
   }
