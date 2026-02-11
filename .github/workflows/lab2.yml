@@ -44,10 +44,11 @@ jobs:
 
       - name: Verify package works (preview)
         run: |
-          pnpm nuxt preview --host 127.0.0.1 --port 4173 &
+          pnpm nuxt preview --port 4173 &
           PREVIEW_PID=$!
-          sleep 2
-          curl -f http://127.0.0.1:4173 || (kill $PREVIEW_PID && exit 1)
+          sleep 3
+          curl -f http://localhost:4173 || (kill $PREVIEW_PID && exit 1)
+          kill $PREVIEW_PID
           kill $PREVIEW_PID
 
       - name: Upload build output (on success)
