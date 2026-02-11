@@ -1,9 +1,10 @@
 <script setup lang="ts">
-const { resetGame, loadBestScore } = useGameState()
+const { resetGame, loadBestScore, loadLastScores } = useGameState()
 const { initControls, destroyControls } = useGameControls()
 
 onMounted(() => {
   loadBestScore()
+  loadLastScores()
   resetGame()
   initControls()
 })
