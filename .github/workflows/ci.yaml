@@ -12,6 +12,17 @@ on:
     paths-ignore:
       - docs/**
   workflow_dispatch:
+    inputs:
+      run-tests:
+        type: boolean
+        description: "Run linting, type checking, and tests"
+        default: true
+      environment:
+        type: choice
+        description: "Deployment environment"
+        options:
+          - QA
+          - PROD
 
 env:
   NODE_VERSION: "20"
@@ -47,7 +58,7 @@ jobs:
   lint:
     needs: build
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.run-tests)
 
     steps:
       - name: Checkout code
@@ -68,7 +79,7 @@ jobs:
   typecheck:
     needs: build
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.run-tests)
 
     steps:
       - name: Checkout code
@@ -89,7 +100,7 @@ jobs:
   test:
     needs: build
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.run-tests)
 
     steps:
       - name: Checkout code
@@ -106,3 +117,13 @@ jobs:
 
       - name: Run tests
         run: pnpm test
+
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Deploy to environment
+        env:
+          ENVIRONMENT: ${{ inputs.environment }}
+        run: echo "Deploying to $ENVIRONMENT"
