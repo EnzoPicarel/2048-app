@@ -3,12 +3,12 @@ name: Hello World
 on:
   push:
     branches:
-      - main
+      - lab4
     paths-ignore:
       - docs/**
   pull_request:
     branches:
-      - main
+      - lab4
     paths-ignore:
       - docs/**
   workflow_dispatch:
