@@ -1,0 +1,94 @@
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "web"'
+      when: always
+    - changes:
+        - docs/**
+      when: never
+    - when: always
+
+stages:
+  - build
+  - analyze
+  - test
+  - deploy
+
+variables:
+  NODE_VERSION: "20"
+  PNPM_VERSION: "10.28.2"
+  RUN_TESTS: "true"
+  DEPLOY_ENV: "QA"
+
+cache:
+  key: "pnpm-${CI_COMMIT_REF_SLUG}"
+  paths:
+    - .pnpm-store/
+
+.default-job:
+  image: "node:${NODE_VERSION}-bookworm"
+  before_script:
+    - corepack enable
+    - corepack prepare pnpm@${PNPM_VERSION} --activate
+    - pnpm config set store-dir .pnpm-store
+
+build:
+  stage: build
+  extends: .default-job
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "lab4"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_PIPELINE_SOURCE == "web"'
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+  script:
+    - pnpm install --frozen-lockfile
+    - pnpm build
+  artifacts:
+    paths:
+      - .output/
+    expire_in: 7 days
+
+lint:
+  stage: analyze
+  extends: .default-job
+  needs: ["build"]
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_PIPELINE_SOURCE == "web" && $RUN_TESTS == "true"'
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $RUN_TESTS == "true"'
+  script:
+    - pnpm install --frozen-lockfile
+    - pnpm lint
+
+typecheck:
+  stage: analyze
+  extends: .default-job
+  needs: ["build"]
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_PIPELINE_SOURCE == "web" && $RUN_TESTS == "true"'
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $RUN_TESTS == "true"'
+  script:
+    - pnpm install --frozen-lockfile
+    - pnpm typecheck
+
+test:
+  stage: test
+  extends: .default-job
+  needs: ["build"]
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_PIPELINE_SOURCE == "web" && $RUN_TESTS == "true"'
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $RUN_TESTS == "true"'
+  script:
+    - pnpm install --frozen-lockfile
+    - pnpm test
+
+deploy:
+  stage: deploy
+  image: "alpine:3.20"
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "web"'
+      when: manual
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+  script:
+    - echo "Deploying to ${DEPLOY_ENV}"
