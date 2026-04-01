@@ -1,19 +1,90 @@
-name: Hello World
+name: Lab 05 - Continuous Deployment
 
 on:
+  push:
+    branches:
+      - main
+      - lab05
+  pull_request:
+    branches:
+      - main
+      - lab05
   workflow_dispatch:
 
+env:
+  NODE_VERSION: 22
+
 jobs:
-  hello:
+  build:
     runs-on: ubuntu-latest
-    
+
     steps:
-      - name: Say Hello
-        run: echo "Hello pipelines' world !"
-      
-      - name: Display runner info
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build application
+        run: pnpm build
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: 2048-app-build
+          path: .output/
+          retention-days: 1
+
+  deploy-preview:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v6
+        with:
+          name: 2048-app-build
+          path: .output/
+
+      - name: Deploy to Vercel (Preview)
         run: |
-          echo "Running on: $(uname -a)"
-          echo "Workflow: ${{ github.workflow }}"
-          echo "Triggered by: ${{ github.event_name }}"
-          echo "Repository: ${{ github.repository }}"
+          npx vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+  deploy-production:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    environment: production
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v6
+        with:
+          name: 2048-app-build
+          path: .output/
+
+      - name: Deploy to Vercel (Production)
+        run: |
+          npx vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
